@@ -12,6 +12,7 @@ var bug = function() {
         // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
         // 1, 2, 3, 4 (up, right, down, left)
         dna: [],
+        dnaIndex: 0,
         
         create: function(x, y, worldWidth, worldHeight) {
             var baby = bug();
@@ -23,7 +24,7 @@ var bug = function() {
             baby.width = worldWidth;
             baby.height = worldHeight;
             var base = 'rgbRGB1234';
-            var chromLength = Math.random() * 10 + 6;
+            var chromLength = Math.floor(Math.random() * 8 + 8) * 2;
             for (var i = 0; i < chromLength; i++) {
                 var pos = base.length * Math.random();
                 baby.dna.push(base.substring(pos, pos + 1));
@@ -33,44 +34,65 @@ var bug = function() {
 
         tick: function(data) {
             var dnaLength = this.dna.length;
-            for (var d = 0; d < dnaLength; d++) {
+            var didMove = false;
+            for (var d = this.dnaIndex; d < dnaLength; d++) {
                 switch (this.dna[d]) {
                     case '1':
-                        this.move(0, -1);
+                        didMove = this.move(0, -1, data);
                         break;
                     case '2':
-                        this.move(1, 0);
+                        didMove = this.move(1, 0, data);
                         break;
                     case '3':
-                        this.move(0, 1);
+                        didMove = this.move(0, 1, data);
                         break;
                     case '4':
-                        this.move(-1, 0);
+                        didMove = this.move(-1, 0, data);
                         break;
                 }
-                var xy = (this.y * this.width + this.x) * 4;
-                data[xy] = 0; 
+                if (didMove) {
+                    break;
+                }
+            }
+            this.dnaIndex += 2;
+            if (this.dnaIndex >= dnaLength - 1) {
+                this.dnaIndex = 0;
             }
             return this.die();
-         },
+        },
 
         die: function() {
-            this.r--;
-            this.g--;
-            this.b--;
+            this.r -= 16;
+            this.g -= 16;
+            this.b -= 16;
             return !(this.r <= 0 || this.g <= 0 || this.b <= 0);
         },
 
         eat: function() {
         }, 
 
-        move: function(dx, dy) {
+        move: function(dx, dy, data) {
             var nx = this.x + dx;
             var ny = this.y + dy;
             if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
                 this.x = nx;
                 this.y = ny;
+                var xy = (this.y * this.width + this.x) * 4;
+                if (data[xy] > 128) {
+                    this.r += 16;
+                    data[xy] -= 16;
+                }
+                if (data[xy + 1] > 128) {
+                    this.g += 16;
+                    data[xy + 1] -= 16;
+                }
+                if (data[xy + 2] > 128) {
+                    this.b += 16;
+                    data[xy + 2] -= 16;
+                }
+                return true;
             }
+            return false;
         }
 
     };
@@ -98,7 +120,7 @@ var pbugs = function() {
         },
 
         initBugs: function() {
-            for (var i = 0; i < 100; i++) {
+            for (var i = 0; i < 1000; i++) {
                 var x = Math.floor(Math.random() * this.iWidth);
                 var y = Math.floor(Math.random() * this.iHeight); 
                 var b = bug().create(x, y, this.iWidth, this.iHeight);
@@ -138,14 +160,16 @@ var pbugs = function() {
                 }    
             }
             this.bugs = livingBugs;
-//            for (var x = 0; x < this.iWidth; x++) {
-//                for (var y = 0; y < this.iHeight; y++) {
-//                    var index = (y * this.iWidth + x) * 4;
-//                    data[index] += this.rnd();
-//                    data[index + 1] += this.rnd();
-//                    data[index + 2] += this.rnd();
-//                }
-//            }
+
+            for (var s = 0; s < 10; s++) {
+                var x = Math.floor(Math.random() * this.iWidth);
+                var y = Math.floor(Math.random() * this.iHeight);
+                var xy = (y * this.iWidth + x) * 4;
+                data[xy] += 16;
+                data[xy + 1] += 16;
+                data[xy + 2] += 16;
+            }
+
             this.context.putImageData(imageData, 0, 0);
             return this.bugs.length > 0;
         },
