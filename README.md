@@ -1,13 +1,13 @@
 pbugs
 =====
 
-Pixel Bugs consume pixels for energy.
+Pixel Bugs consume pixels from photographs for energy (and eventually to reproduce.)
 
 
 May 22, 2015
 ------------
 
-Dumb bugs eating pixels and then dying:
+Very simple bugs eating pixels and dying:
 
 ![PBugs eatin pixels](./pbugs_may22.png)
 
