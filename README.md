@@ -9,5 +9,5 @@ May 22, 2015
 
 Dumb bugs eating pixels and then dying:
 
-(pbugs_may22.png)
+[[./pbugs_may22.png]]
 
