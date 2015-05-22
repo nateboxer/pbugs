@@ -6,20 +6,24 @@ var bug = function() {
         r: 0,
         g: 0,
         b: 0,
+        width: 0,
+        height: 0,
 
         // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
         // 1, 2, 3, 4 (up, right, down, left)
         dna: [],
         
-        create: function(x, y) {
+        create: function(x, y, worldWidth, worldHeight) {
             var baby = bug();
             baby.x = x;
             baby.y = y;
-            baby.r = 25;
-            baby.g = 25;
-            baby.b = 25;
+            baby.r = 255;
+            baby.g = 255;
+            baby.b = 255;
+            baby.width = worldWidth;
+            baby.height = worldHeight;
             var base = 'rgbRGB1234';
-            var chromLength = Math.random() * 10;
+            var chromLength = Math.random() * 10 + 6;
             for (var i = 0; i < chromLength; i++) {
                 var pos = base.length * Math.random();
                 baby.dna.push(base.substring(pos, pos + 1));
@@ -27,13 +31,26 @@ var bug = function() {
             return baby;
         },
 
-        tick: function(data, width) {
+        tick: function(data) {
             var dnaLength = this.dna.length;
             for (var d = 0; d < dnaLength; d++) {
+                switch (this.dna[d]) {
+                    case '1':
+                        this.move(0, -1);
+                        break;
+                    case '2':
+                        this.move(1, 0);
+                        break;
+                    case '3':
+                        this.move(0, 1);
+                        break;
+                    case '4':
+                        this.move(-1, 0);
+                        break;
+                }
+                var xy = (this.y * this.width + this.x) * 4;
+                data[xy] = 0; 
             }
-            this.moveUp();
-            var xy = (this.y * width + this.x) * 4;
-            data[xy] = 0; 
             return this.die();
          },
 
@@ -47,9 +64,12 @@ var bug = function() {
         eat: function() {
         }, 
 
-        moveUp: function() {
-            if (this.y > 0) {
-                this.y--;
+        move: function(dx, dy) {
+            var nx = this.x + dx;
+            var ny = this.y + dy;
+            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
+                this.x = nx;
+                this.y = ny;
             }
         }
 
@@ -81,7 +101,7 @@ var pbugs = function() {
             for (var i = 0; i < 100; i++) {
                 var x = Math.floor(Math.random() * this.iWidth);
                 var y = Math.floor(Math.random() * this.iHeight); 
-                var b = bug().create(x, y);
+                var b = bug().create(x, y, this.iWidth, this.iHeight);
                 this.bugs.push(b);
             }
         },
