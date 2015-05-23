@@ -6,6 +6,7 @@ var bug = function() {
         r: 0,
         g: 0,
         b: 0,
+        pref: '',
         width: 0,
         height: 0,
 
@@ -24,11 +25,14 @@ var bug = function() {
             baby.width = worldWidth;
             baby.height = worldHeight;
             var base = 'rgbRGB1234';
-            var chromLength = Math.floor(Math.random() * 8 + 8) * 2;
+            var chromLength = Math.floor(Math.random() * 16 + 16) * 2;
             for (var i = 0; i < chromLength; i++) {
                 var pos = base.length * Math.random();
                 baby.dna.push(base.substring(pos, pos + 1));
             } 
+            var prefs = 'rgb';
+            var pos = prefs.length * Math.random();
+            baby.pref = prefs.substring(pos, pos + 1); 
             return baby;
         },
 
@@ -62,9 +66,15 @@ var bug = function() {
         },
 
         die: function() {
-            this.r -= 16;
-            this.g -= 16;
-            this.b -= 16;
+            if (this.pref === 'r') {
+                this.r -= 8;
+            }
+            if (this.pref === 'g') {
+                this.g -= 8;
+            }
+            if (this.pref === 'b') {
+                this.b -= 8;
+            }
             return !(this.r <= 0 || this.g <= 0 || this.b <= 0);
         },
 
@@ -78,17 +88,32 @@ var bug = function() {
                 this.x = nx;
                 this.y = ny;
                 var xy = (this.y * this.width + this.x) * 4;
-                if (data[xy] > 128) {
-                    this.r += 16;
-                    data[xy] -= 16;
+                var ateRed = false;
+                var ateGreen = false;
+                var ateBlue = false;
+                if (this.pref === 'r' && data[xy] > 16) {
+                    this.r += 8;
+                    data[xy] -= 8;
+                    ateRed = true;
                 }
-                if (data[xy + 1] > 128) {
+                if (this.pref === 'g' && data[xy + 1] > 16) {
                     this.g += 16;
-                    data[xy + 1] -= 16;
+                    data[xy + 1] -= 8; 
+                    ateGreen = true;
                 }
-                if (data[xy + 2] > 128) {
+                if (this.pref === 'b' && data[xy + 2] > 16) {
                     this.b += 16;
-                    data[xy + 2] -= 16;
+                    data[xy + 2] -= 8;
+                    ateBlue = true;
+                }
+                if (ateRed) {
+                    data[xy] += 2;
+                }
+                if (ateGreen) {
+                    data[xy + 1] += 2;
+                }
+                if (ateBlue) {
+                    data[xy + 2] += 2;
                 }
                 return true;
             }
@@ -109,7 +134,7 @@ var pbugs = function() {
 
         init: function() {
             this.ui = this.loadDOM([
-                'main'
+                'main', 'hud', 'status'
             ]);
             var that = this;
             var img = document.createElement('img');
@@ -117,6 +142,10 @@ var pbugs = function() {
             img.src = 'lagoon.jpg';
             this.ui.img = img;
             this.ui.main.appendChild(img);
+        },
+
+        updateStatus: function(msg) {
+            this.ui.status.innerHTML = msg;
         },
 
         initBugs: function() {
@@ -165,12 +194,13 @@ var pbugs = function() {
                 var x = Math.floor(Math.random() * this.iWidth);
                 var y = Math.floor(Math.random() * this.iHeight);
                 var xy = (y * this.iWidth + x) * 4;
-                data[xy] += 16;
-                data[xy + 1] += 16;
-                data[xy + 2] += 16;
+                data[xy] = Math.min(255, data[xy] + 8);
+                data[xy + 1] = Math.min(255, data[xy + 1] + 8);
+                data[xy + 2] = Math.min(255, data[xy + 2] + 8);
             }
 
             this.context.putImageData(imageData, 0, 0);
+            this.updateStatus( 'Pbugs: ' + this.bugs.length);
             return this.bugs.length > 0;
         },
 
