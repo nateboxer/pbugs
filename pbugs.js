@@ -1,3 +1,16 @@
+var vars = {
+    babyFat: 255,
+    feedSize: 6,
+    wasteSize: 2,
+    biteSize: 8, 
+    decaySize: 3,
+    minColor: 16,
+    prefTypes: 'rgb',
+    // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
+    // 1, 2, 3, 4 (up, right, down, left)
+    bases: 'rgbRGB1234'
+};
+
 var bug = function() {
     return {
 
@@ -9,9 +22,6 @@ var bug = function() {
         pref: '',
         width: 0,
         height: 0,
-
-        // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
-        // 1, 2, 3, 4 (up, right, down, left)
         dna: [],
         dnaIndex: 0,
         
@@ -19,21 +29,31 @@ var bug = function() {
             var baby = bug();
             baby.x = x;
             baby.y = y;
-            baby.r = 255;
-            baby.g = 255;
-            baby.b = 255;
+            baby.r = vars.babyFat;
+            baby.g = vars.babyFat;
+            baby.b = vars.babyFat;
             baby.width = worldWidth;
             baby.height = worldHeight;
-            var base = 'rgbRGB1234';
             var chromLength = Math.floor(Math.random() * 16 + 16) * 2;
             for (var i = 0; i < chromLength; i++) {
-                var pos = base.length * Math.random();
-                baby.dna.push(base.substring(pos, pos + 1));
+                var pos = vars.bases.length * Math.random();
+                baby.dna.push(vars.bases.substring(pos, pos + 1));
             } 
-            var prefs = 'rgb';
-            var pos = prefs.length * Math.random();
-            baby.pref = prefs.substring(pos, pos + 1); 
+            var pos = vars.prefTypes.length * Math.random();
+            baby.pref = vars.prefTypes.substring(pos, pos + 1); 
             return baby;
+        },
+
+        likesRed: function() {
+            return this.pref === 'r';
+        },
+
+        likesGreen: function() {
+            return this.pref === 'g';
+        },
+
+        likesBlue: function() {
+            return this.pref === 'b';
         },
 
         tick: function(data) {
@@ -66,14 +86,14 @@ var bug = function() {
         },
 
         die: function() {
-            if (this.pref === 'r') {
-                this.r -= 8;
+            if (this.likesRed()) {
+                this.r -= vars.decaySize;
             }
-            if (this.pref === 'g') {
-                this.g -= 8;
+            if (this.likesGreen()) {
+                this.g -= vars.decaySize;
             }
-            if (this.pref === 'b') {
-                this.b -= 8;
+            if (this.likesBlue()) {
+                this.b -= vars.decaySize;
             }
             return !(this.r <= 0 || this.g <= 0 || this.b <= 0);
         },
@@ -88,36 +108,28 @@ var bug = function() {
                 this.x = nx;
                 this.y = ny;
                 var xy = (this.y * this.width + this.x) * 4;
-                var ateRed = false;
-                var ateGreen = false;
-                var ateBlue = false;
-                if (this.pref === 'r' && data[xy] > 16) {
-                    this.r += 8;
-                    data[xy] -= 8;
-                    ateRed = true;
-                }
-                if (this.pref === 'g' && data[xy + 1] > 16) {
-                    this.g += 16;
-                    data[xy + 1] -= 8; 
-                    ateGreen = true;
-                }
-                if (this.pref === 'b' && data[xy + 2] > 16) {
-                    this.b += 16;
-                    data[xy + 2] -= 8;
-                    ateBlue = true;
-                }
-                if (ateRed) {
-                    data[xy] += 2;
-                }
-                if (ateGreen) {
-                    data[xy + 1] += 2;
-                }
-                if (ateBlue) {
-                    data[xy + 2] += 2;
-                }
+                this.bite(xy, data);
                 return true;
             }
             return false;
+        },
+
+        bite: function(xy, data) {
+            if (this.likesRed() && data[xy] > vars.minColor) {
+                this.r += vars.feedSize;
+                data[xy] -= vars.biteSize;
+                data[xy + 1] += vars.wasteSize;
+            }
+            if (this.likesGreen() && data[xy + 1] > vars.minColor) {
+                this.g += vars.feedSize;
+                data[xy + 1] -= vars.biteSize; 
+                data[xy + 2] += vars.wasteSize;
+            }
+            if (this.likesBlue() && data[xy + 2] > vars.minColor) {
+                this.b += vars.feedSize;
+                data[xy + 2] -= vars.biteSize;
+                data[xy] += vars.wasteSize;
+            }
         }
 
     };
@@ -138,6 +150,7 @@ var pbugs = function() {
             ]);
             var that = this;
             var img = document.createElement('img');
+            // .bind() only supported by Chrome, sadly
             img.onload = this.imgLoaded.bind(this);
             img.src = 'lagoon.jpg';
             this.ui.img = img;
