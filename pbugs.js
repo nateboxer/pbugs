@@ -1,16 +1,3 @@
-var vars = {
-    babyFat: 255,
-    feedSize: 6,
-    wasteSize: 2,
-    biteSize: 8, 
-    decaySize: 3,
-    minColor: 16,
-    prefTypes: 'rgb',
-    // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
-    // 1, 2, 3, 4 (up, right, down, left)
-    bases: 'rgbRGB1234'
-};
-
 var pbugs = function() {
     return {
 
