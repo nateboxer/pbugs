@@ -3,6 +3,13 @@ pbugs
 
 Pixel Bugs consume pixels from photographs for energy (and eventually to reproduce.)
 
+May 29, 2015
+------------
+
+Playing in a branch I called 'rust'. This removes bug movmement and replaces it with a more mold/rust like growth.
+
+![Pbugs rusting](./pbugs_may29.jpg)
+
 May 23, 2015
 ------------
 

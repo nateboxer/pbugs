@@ -64,9 +64,9 @@ var bug = function() {
                 baby.x = this.x;
                 baby.y = this.y;
                 if (Math.random() < 0.5) {
-                    baby.x += Math.floor(Math.random() * 3 - 1);
+                    baby.x += Math.floor(Math.random() * (vars.fallDist * 2 + 1) - vars.fallDist);
                 } else {
-                    baby.y += Math.floor(Math.random() * 3 - 1);
+                    baby.y += Math.floor(Math.random() * (vars.fallDist * 2 + 1) - vars.fallDist);
                 }
                 if (baby.x >= this.width || baby.x < 0) {
                     baby.x = this.x;

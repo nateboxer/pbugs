@@ -38,6 +38,7 @@ var pbugs = function() {
             this.iHeight = event.currentTarget.naturalHeight;    
             this.initBugs();
             this.run();
+            this.doSun(vars.sun);
         },
 
         run: function() {
@@ -57,7 +58,6 @@ var pbugs = function() {
             var imageData = this.context.getImageData(0, 0, this.iWidth, this.iHeight);
             var data = imageData.data;
             this.doBugs(data);
-            //this.doSun(data);
             this.context.putImageData(imageData, 0, 0);
             return this.bugs.length > 0 && this.bugs.length < 1000000;
         },
@@ -78,15 +78,18 @@ var pbugs = function() {
             this.updateStatus( 'Pbugs: ' + this.bugs.length);
         },
 
-        doSun: function(data) {
-            for (var s = 0; s < 10; s++) {
-                var x = Math.floor(Math.random() * this.iWidth);
-                var y = Math.floor(Math.random() * this.iHeight);
-                var xy = (y * this.iWidth + x) * 4;
-                data[xy] = Math.min(255, data[xy] + 8);
-                data[xy + 1] = Math.min(255, data[xy + 1] + 8);
-                data[xy + 2] = Math.min(255, data[xy + 2] + 8);
+        doSun: function(amount) {
+            var imageData = this.context.getImageData(0, 0, this.iWidth, this.iHeight);
+            var data = imageData.data;
+            for (var x = 0; x < this.iWidth; x++) {
+                for (var y = 0; y < this.iHeight; y++) {
+                    var xy = (y * this.iWidth + x) * 4;
+                    data[xy] = Math.min(255, data[xy] + amount);
+                    data[xy + 1] = Math.min(255, data[xy + 1] + amount);
+                    data[xy + 2] = Math.min(255, data[xy + 2] + amount);
+                }
             }
+            this.context.putImageData(imageData, 0, 0);
         },
 
         loop: function(t) {
