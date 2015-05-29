@@ -1,12 +1,12 @@
 var vars = {
-    babyFat: 9,
-    feedSize: 2,
-    wasteSize: 1,
-    biteSize: 3, 
-    decaySize: 1,
-    minColor: 16,
+    minColor: 52,
+    maxBite: 34,
+    initPop: 10000,
+    wasteRatio: 0.85,
+    decayRate: 4,
+    babyCostRatio: 0.5,
     prefTypes: 'rgb',
-    // r, g, b, R, G, B (low: r, g, b; high: R, G, B)
-    // 1, 2, 3, 4 (up, right, down, left)
-    bases: 'rgbRGB1234'
+    mRate: 0.001,
+    colorMRate: 0.002,
+    maxAge: 12 
 };

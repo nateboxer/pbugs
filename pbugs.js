@@ -15,7 +15,7 @@ var pbugs = function() {
             var img = document.createElement('img');
             // .bind() only supported by Chrome, sadly
             img.onload = this.imgLoaded.bind(this);
-            img.src = 'lagoon.jpg';
+            img.src = 'nb.jpg';
             this.ui.img = img;
             this.ui.main.appendChild(img);
         },
@@ -25,7 +25,7 @@ var pbugs = function() {
         },
 
         initBugs: function() {
-            for (var i = 0; i < 1000; i++) {
+            for (var i = 0; i < vars.initPop; i++) {
                 var x = Math.floor(Math.random() * this.iWidth);
                 var y = Math.floor(Math.random() * this.iHeight); 
                 var b = bug().create(x, y, this.iWidth, this.iHeight);
@@ -57,9 +57,9 @@ var pbugs = function() {
             var imageData = this.context.getImageData(0, 0, this.iWidth, this.iHeight);
             var data = imageData.data;
             this.doBugs(data);
-            this.doSun(data);
+            //this.doSun(data);
             this.context.putImageData(imageData, 0, 0);
-            return this.bugs.length > 0;
+            return this.bugs.length > 0 && this.bugs.length < 1000000;
         },
 
         doBugs: function(data) {
@@ -68,6 +68,10 @@ var pbugs = function() {
             for (var i = 0; i < numBugs; i++) {
                 if (this.bugs[i].tick(data, this.iWidth)) {
                     livingBugs.push(this.bugs[i]);
+                    var newBug = this.bugs[i].repro();
+                    if (newBug) {
+                        livingBugs.push(newBug);
+                    }
                 }    
             }
             this.bugs = livingBugs;
